@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BibleRouteImport } from './routes/bible'
+import { Route as ChildrenRouteImport } from './routes/children'
+import { Route as CommunityRouteImport } from './routes/community'
+import { Route as EarnRouteImport } from './routes/earn'
+import { Route as FeedRouteImport } from './routes/feed'
+import { Route as SermonsRouteImport } from './routes/sermons'
+import { Route as StudyRouteImport } from './routes/study'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BibleRoute = BibleRouteImport.update({
+  id: '/bible',
+  path: '/bible',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChildrenRoute = ChildrenRouteImport.update({
+  id: '/children',
+  path: '/children',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EarnRoute = EarnRouteImport.update({
+  id: '/earn',
+  path: '/earn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SermonsRoute = SermonsRouteImport.update({
+  id: '/sermons',
+  path: '/sermons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudyRoute = StudyRouteImport.update({
+  id: '/study',
+  path: '/study',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
+  '/children': typeof ChildrenRoute
+  '/community': typeof CommunityRoute
+  '/earn': typeof EarnRoute
+  '/feed': typeof FeedRoute
+  '/sermons': typeof SermonsRoute
+  '/study': typeof StudyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
+  '/children': typeof ChildrenRoute
+  '/community': typeof CommunityRoute
+  '/earn': typeof EarnRoute
+  '/feed': typeof FeedRoute
+  '/sermons': typeof SermonsRoute
+  '/study': typeof StudyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
+  '/children': typeof ChildrenRoute
+  '/community': typeof CommunityRoute
+  '/earn': typeof EarnRoute
+  '/feed': typeof FeedRoute
+  '/sermons': typeof SermonsRoute
+  '/study': typeof StudyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/bible'
+    | '/children'
+    | '/community'
+    | '/earn'
+    | '/feed'
+    | '/sermons'
+    | '/study'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/bible'
+    | '/children'
+    | '/community'
+    | '/earn'
+    | '/feed'
+    | '/sermons'
+    | '/study'
+  id:
+    | '__root__'
+    | '/'
+    | '/bible'
+    | '/children'
+    | '/community'
+    | '/earn'
+    | '/feed'
+    | '/sermons'
+    | '/study'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibleRoute: typeof BibleRoute
+  ChildrenRoute: typeof ChildrenRoute
+  CommunityRoute: typeof CommunityRoute
+  EarnRoute: typeof EarnRoute
+  FeedRoute: typeof FeedRoute
+  SermonsRoute: typeof SermonsRoute
+  StudyRoute: typeof StudyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +143,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bible': {
+      id: '/bible'
+      path: '/bible'
+      fullPath: '/bible'
+      preLoaderRoute: typeof BibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/children': {
+      id: '/children'
+      path: '/children'
+      fullPath: '/children'
+      preLoaderRoute: typeof ChildrenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/earn': {
+      id: '/earn'
+      path: '/earn'
+      fullPath: '/earn'
+      preLoaderRoute: typeof EarnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sermons': {
+      id: '/sermons'
+      path: '/sermons'
+      fullPath: '/sermons'
+      preLoaderRoute: typeof SermonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/study': {
+      id: '/study'
+      path: '/study'
+      fullPath: '/study'
+      preLoaderRoute: typeof StudyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibleRoute: BibleRoute,
+  ChildrenRoute: ChildrenRoute,
+  CommunityRoute: CommunityRoute,
+  EarnRoute: EarnRoute,
+  FeedRoute: FeedRoute,
+  SermonsRoute: SermonsRoute,
+  StudyRoute: StudyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
