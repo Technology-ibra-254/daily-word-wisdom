@@ -15,6 +15,8 @@ import { Route as ChildrenRouteImport } from './routes/children'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as EarnRouteImport } from './routes/earn'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RecordRouteImport } from './routes/record'
 import { Route as SermonsRouteImport } from './routes/sermons'
 import { Route as StudyRouteImport } from './routes/study'
 
@@ -48,6 +50,16 @@ const FeedRoute = FeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordRoute = RecordRouteImport.update({
+  id: '/record',
+  path: '/record',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SermonsRoute = SermonsRouteImport.update({
   id: '/sermons',
   path: '/sermons',
@@ -66,6 +78,8 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/earn': typeof EarnRoute
   '/feed': typeof FeedRoute
+  '/profile': typeof ProfileRoute
+  '/record': typeof RecordRoute
   '/sermons': typeof SermonsRoute
   '/study': typeof StudyRoute
 }
@@ -76,6 +90,8 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/earn': typeof EarnRoute
   '/feed': typeof FeedRoute
+  '/profile': typeof ProfileRoute
+  '/record': typeof RecordRoute
   '/sermons': typeof SermonsRoute
   '/study': typeof StudyRoute
 }
@@ -87,6 +103,8 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/earn': typeof EarnRoute
   '/feed': typeof FeedRoute
+  '/profile': typeof ProfileRoute
+  '/record': typeof RecordRoute
   '/sermons': typeof SermonsRoute
   '/study': typeof StudyRoute
 }
@@ -99,6 +117,8 @@ export interface FileRouteTypes {
     | '/community'
     | '/earn'
     | '/feed'
+    | '/profile'
+    | '/record'
     | '/sermons'
     | '/study'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +129,8 @@ export interface FileRouteTypes {
     | '/community'
     | '/earn'
     | '/feed'
+    | '/profile'
+    | '/record'
     | '/sermons'
     | '/study'
   id:
@@ -119,6 +141,8 @@ export interface FileRouteTypes {
     | '/community'
     | '/earn'
     | '/feed'
+    | '/profile'
+    | '/record'
     | '/sermons'
     | '/study'
   fileRoutesById: FileRoutesById
@@ -130,6 +154,8 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   EarnRoute: typeof EarnRoute
   FeedRoute: typeof FeedRoute
+  ProfileRoute: typeof ProfileRoute
+  RecordRoute: typeof RecordRoute
   SermonsRoute: typeof SermonsRoute
   StudyRoute: typeof StudyRoute
 }
@@ -178,6 +204,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/record': {
+      id: '/record'
+      path: '/record'
+      fullPath: '/record'
+      preLoaderRoute: typeof RecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sermons': {
       id: '/sermons'
       path: '/sermons'
@@ -202,6 +242,8 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   EarnRoute: EarnRoute,
   FeedRoute: FeedRoute,
+  ProfileRoute: ProfileRoute,
+  RecordRoute: RecordRoute,
   SermonsRoute: SermonsRoute,
   StudyRoute: StudyRoute,
 }

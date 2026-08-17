@@ -30,7 +30,7 @@ type Tab = (typeof TABS)[number];
 
 function SermonsPage() {
   const [tab, setTab] = useState<Tab>("Recordings");
-  const [activeId, setActiveId] = useState(SERMONS[0].id);
+  const [activeId, setActiveId] = useState(SERMONS[0]!.id);
   const active = SERMONS.find((s) => s.id === activeId)!;
 
   return (

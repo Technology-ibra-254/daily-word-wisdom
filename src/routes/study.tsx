@@ -37,7 +37,7 @@ type Tab = (typeof TABS)[number];
 
 type Msg = { role: "user" | "assistant"; text: string };
 
-const CANNED: Record<string, string> = {
+const CANNED = {
   default:
     "Here is what the passage teaches: God's word is the source of light and life. Read it slowly, ask what it says about God, then what it asks of you.",
 };
@@ -84,7 +84,7 @@ function StudyPage() {
     setMessages((m) => [
       ...m,
       { role: "user", text },
-      { role: "assistant", text: CANNED.default },
+      { role: "assistant", text: CANNED.default as string },
     ]);
     setDraft("");
   };
