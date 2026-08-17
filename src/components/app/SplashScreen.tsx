@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/bible-logo.asset.json";
 
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
@@ -7,18 +6,21 @@ export function SplashScreen() {
 
   useEffect(() => {
     const seen = sessionStorage.getItem("bibleapp:splash");
+
     if (seen) {
       setVisible(false);
       return;
     }
-    const a = setTimeout(() => setFading(true), 1200);
-    const b = setTimeout(() => {
+
+    const fadeTimer = setTimeout(() => setFading(true), 1200);
+    const hideTimer = setTimeout(() => {
       sessionStorage.setItem("bibleapp:splash", "1");
       setVisible(false);
     }, 1800);
+
     return () => {
-      clearTimeout(a);
-      clearTimeout(b);
+      clearTimeout(fadeTimer);
+      clearTimeout(hideTimer);
     };
   }, []);
 
@@ -31,15 +33,17 @@ export function SplashScreen() {
       }`}
     >
       <img
-        src={logo.url}
+        src="/logo.png"
         alt="The Bible App logo"
         width={128}
         height={128}
-        className="h-32 w-32 rounded-3xl shadow-[var(--shadow-float)]"
+        className="h-32 w-32 rounded-3xl object-contain shadow-[var(--shadow-float)]"
       />
+
       <p className="mt-5 text-xl font-extrabold tracking-tight text-brand-foreground">
         The Bible App
       </p>
+
       <p className="mt-1 text-xs font-medium text-brand-foreground/70">
         Read. Listen. Grow. Earn.
       </p>
