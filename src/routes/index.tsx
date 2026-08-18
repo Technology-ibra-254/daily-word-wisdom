@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Flame,
   BookOpen,
@@ -15,11 +16,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { MobileShell } from "@/components/app/MobileShell";
-import { Progress } from "@/components/ui/progress";
-import { useLocalState } from "@/lib/local-store";
-import { VERSE_OF_DAY, DEVOTIONALS, PLANS } from "@/lib/demo";
+import { EmptyState } from "@/components/app/AuthGate";
+import { Button } from "@/components/ui/button";
+import { passageQuery } from "@/lib/bible";
+import { useAuth } from "@/lib/auth";
+import { useProfile, useStreakTracker, usePosts, usePrayers, useAddNote } from "@/lib/cloud";
 import verseBg from "@/assets/verse-bg.jpg";
-const logo = { url: "/logo.png" };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,13 +30,15 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Your verse of the day, reading plans, devotionals, prayer and daily streak in one place.",
+          "Your verse of the day, continue reading, community devotionals, prayer and your cloud-saved daily streak.",
       },
       { property: "og:title", content: "Home — The Bible App" },
       {
         property: "og:description",
-        content: "Verse of the day, reading plans, devotionals, prayer and streaks.",
+        content: "Verse of the day, devotionals, prayer and streaks saved to your account.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HomePage,
@@ -51,34 +55,66 @@ const SECTIONS = [
   { to: "/profile", label: "Profile", icon: HeartHandshake, tone: "bg-muted text-muted-foreground" },
 ] as const;
 
+const DAILY_VERSES = [
+  "Isaiah 41:10",
+  "Psalm 23:1-3",
+  "John 14:27",
+  "Philippians 4:6-7",
+  "Proverbs 3:5-6",
+  "Romans 8:28",
+  "Joshua 1:9",
+];
+
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 function HomePage() {
-  const [streak, setStreak] = useLocalState<{ count: number; days: boolean[] }>(
-    "streak",
-    { count: 12, days: [true, true, true, true, true, false, false] },
-  );
-  const today = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const { user } = useAuth();
+  const { data: profile } = useProfile();
+  const streak = useStreakTracker();
+  const { data: devotionals = [] } = usePosts("devotional");
+  const { data: prayers = [] } = usePrayers();
+  const addNote = useAddNote();
+
+  const dayIndex = Math.floor(Date.now() / 86_400_000) % DAILY_VERSES.length;
+  const reference = DAILY_VERSES[dayIndex]!;
+  const { data: passage } = useQuery(passageQuery(reference, "kjv"));
+  const verseText = passage?.verses.map((v) => v.text).join(" ") ?? "";
+
+  const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const greeting =
+    new Date().getHours() < 12
+      ? "Good morning"
+      : new Date().getHours() < 18
+        ? "Good afternoon"
+        : "Good evening";
 
   return (
     <MobileShell>
       <div className="px-4 pb-4 pt-5">
         <div className="flex items-center gap-3">
           <img
-            src={logo.url}
+            src="/logo.png"
             alt="The Bible App"
             width={44}
             height={44}
             className="h-11 w-11 rounded-xl"
           />
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground">Good morning</p>
-            <h1 className="text-lg font-bold tracking-tight">Benjamin</h1>
+            <p className="text-xs text-muted-foreground">{greeting}</p>
+            <h1 className="font-display text-2xl leading-tight tracking-tight">
+              {profile?.display_name ?? (user ? "Friend" : "Welcome")}
+            </h1>
           </div>
-          <div className="flex items-center gap-1 rounded-full bg-flame-soft px-3 py-1.5 text-flame">
-            <Flame className="h-4 w-4" />
-            <span className="text-sm font-bold">{streak.count}</span>
-          </div>
+          {user ? (
+            <div className="flex items-center gap-1 rounded-full bg-flame-soft px-3 py-1.5 text-flame">
+              <Flame className="h-4 w-4" />
+              <span className="font-stat text-sm font-bold">{streak}</span>
+            </div>
+          ) : (
+            <Button asChild size="sm" className="rounded-full">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -97,22 +133,35 @@ function HomePage() {
             <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">
               Verse of the Day
             </p>
-            <p className="mt-1 font-serif text-[15px] leading-snug">
-              “{VERSE_OF_DAY.text}”
+            <p className="mt-1 font-scripture text-[15px] leading-snug">
+              {verseText ? `“${verseText}”` : "Loading today's verse…"}
             </p>
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs font-semibold">{VERSE_OF_DAY.reference}</span>
+              <span className="font-stat text-xs font-semibold">{reference}</span>
               <div className="flex gap-2">
                 <button
                   aria-label="Save verse"
-                  onClick={() => toast.success("Verse saved")}
+                  onClick={() => {
+                    if (!user) return toast.error("Sign in to save verses");
+                    addNote.mutate(
+                      { reference, body: verseText },
+                      { onSuccess: () => toast.success("Saved to your notes") },
+                    );
+                  }}
                   className="rounded-full bg-ink-foreground/15 p-2"
                 >
                   <Bookmark className="h-4 w-4" />
                 </button>
                 <button
                   aria-label="Share verse"
-                  onClick={() => toast.success("Share sheet opened")}
+                  onClick={() => {
+                    const text = `“${verseText}” — ${reference}`;
+                    if (navigator.share) void navigator.share({ text });
+                    else {
+                      void navigator.clipboard.writeText(text);
+                      toast.success("Verse copied");
+                    }
+                  }}
                   className="rounded-full bg-ink-foreground/15 p-2"
                 >
                   <Share2 className="h-4 w-4" />
@@ -128,16 +177,15 @@ function HomePage() {
         <SectionTitle title="Continue Reading" to="/bible" />
         <Link
           to="/bible"
-          className="mt-2 block rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]"
+          className="mt-2 flex items-center justify-between rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">John 1</p>
-              <p className="text-xs text-muted-foreground">Gospel of John · Day 3 of 21</p>
-            </div>
-            <span className="text-xs font-bold text-primary">21%</span>
+          <div>
+            <p className="text-sm font-semibold">Open your Bible</p>
+            <p className="text-xs text-muted-foreground">
+              Read, compare translations, highlight and take notes
+            </p>
           </div>
-          <Progress value={21} className="mt-3 h-2" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
       </section>
 
@@ -145,65 +193,71 @@ function HomePage() {
       <section className="px-4 pt-5">
         <SectionTitle title="Your Streak" />
         <div className="mt-2 rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between">
-            <p className="text-sm">
-              <span className="text-xl font-extrabold text-flame">{streak.count}</span>{" "}
-              <span className="text-muted-foreground">day streak</span>
-            </p>
-            <button
-              onClick={() =>
-                setStreak((s) => {
-                  if (s.days[today]) return s;
-                  const days = [...s.days];
-                  days[today] = true;
-                  toast.success("Today marked complete");
-                  return { count: s.count + 1, days };
-                })
-              }
-              className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-            >
-              Mark today
-            </button>
-          </div>
-          <div className="mt-3 flex justify-between">
-            {DAYS.map((d, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                    streak.days[i]
-                      ? "bg-flame text-ink-foreground"
-                      : "bg-secondary text-muted-foreground"
-                  }`}
-                >
-                  {d}
-                </span>
+          {user ? (
+            <>
+              <p className="text-sm">
+                <span className="font-stat text-xl font-bold text-flame">{streak}</span>{" "}
+                <span className="text-muted-foreground">day streak · saved to your account</span>
+              </p>
+              <div className="mt-3 flex justify-between">
+                {DAYS.map((d, i) => (
+                  <span
+                    key={i}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full font-stat text-xs font-bold ${
+                      i <= todayIdx && streak > todayIdx - i
+                        ? "bg-flame text-ink-foreground"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {d}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Sign in and your streak is tracked and stored in the cloud automatically.
+            </p>
+          )}
         </div>
       </section>
 
       {/* Devotional */}
       <section className="pt-5">
         <div className="px-4">
-          <SectionTitle title="Devotional" />
+          <SectionTitle title="Devotional" to="/community" />
         </div>
-        <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto px-4 pb-1">
-          {DEVOTIONALS.map((d) => (
-            <article
-              key={d.id}
-              className="w-60 shrink-0 rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]"
-            >
-              <p className="text-sm font-semibold">{d.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {d.author} · {d.minutes} min
-              </p>
-              <p className="mt-2 font-serif text-xs leading-relaxed text-muted-foreground">
-                {d.excerpt}
-              </p>
-            </article>
-          ))}
-        </div>
+        {devotionals.length ? (
+          <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto px-4 pb-1">
+            {devotionals.map((d) => (
+              <article
+                key={d.id}
+                className="w-60 shrink-0 rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]"
+              >
+                <p className="text-sm font-semibold">{d.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {d.profiles?.display_name ?? "Member"} ·{" "}
+                  {new Date(d.created_at).toLocaleDateString()}
+                </p>
+                <p className="mt-2 line-clamp-4 font-serif text-xs leading-relaxed text-muted-foreground">
+                  {d.body}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="px-4 pt-2">
+            <EmptyState
+              title="No devotionals yet"
+              hint="Devotionals written by members appear here. Be the first to publish one."
+              action={
+                <Button asChild size="sm" className="rounded-full">
+                  <Link to="/community">Write a devotional</Link>
+                </Button>
+              }
+            />
+          </div>
+        )}
       </section>
 
       {/* Prayer */}
@@ -216,35 +270,16 @@ function HomePage() {
           >
             <HeartHandshake className="h-5 w-5" />
             <p className="mt-2 text-sm font-semibold">Prayer Wall</p>
-            <p className="text-xs opacity-80">3 new requests</p>
+            <p className="font-stat text-xs opacity-80">{prayers.length} requests</p>
           </Link>
-          <button
-            onClick={() => toast.success("Prayer added to your list")}
+          <Link
+            to="/community"
             className="rounded-2xl bg-card p-4 text-left shadow-[var(--shadow-card)]"
           >
             <Flame className="h-5 w-5 text-flame" />
-            <p className="mt-2 text-sm font-semibold">Add a prayer</p>
-            <p className="text-xs text-muted-foreground">Keep a private list</p>
-          </button>
-        </div>
-      </section>
-
-      {/* Reading plans */}
-      <section className="px-4 pt-5">
-        <SectionTitle title="Recommended for you" />
-        <div className="mt-2 space-y-2">
-          {PLANS.map((p) => (
-            <div
-              key={p.id}
-              className="rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]"
-            >
-              <div className="flex items-center justify-between text-sm font-semibold">
-                <span>{p.title}</span>
-                <span className="text-xs text-muted-foreground">{p.days} days</span>
-              </div>
-              <Progress value={p.progress} className="mt-2 h-1.5" />
-            </div>
-          ))}
+            <p className="mt-2 text-sm font-semibold">Share a request</p>
+            <p className="text-xs text-muted-foreground">The community prays with you</p>
+          </Link>
         </div>
       </section>
 
@@ -259,7 +294,7 @@ function HomePage() {
               className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]"
             >
               <span className={`rounded-xl p-2 ${s.tone}`}>
-                <s.icon className="h-5 w-5" />
+                <s.icon className="h-5 w-5" strokeWidth={1.7} />
               </span>
               <span className="text-[11px] font-medium">{s.label}</span>
             </Link>
@@ -273,7 +308,7 @@ function HomePage() {
 function SectionTitle({ title, to }: { title: string; to?: string }) {
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-sm font-bold tracking-tight">{title}</h2>
+      <h2 className="font-display text-xl tracking-tight">{title}</h2>
       {to ? (
         <Link to={to} className="flex items-center text-xs font-medium text-primary">
           See all <ChevronRight className="h-3.5 w-3.5" />
