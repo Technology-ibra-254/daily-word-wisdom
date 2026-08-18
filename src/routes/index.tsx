@@ -19,7 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { useLocalState } from "@/lib/local-store";
 import { VERSE_OF_DAY, DEVOTIONALS, PLANS } from "@/lib/demo";
 import verseBg from "@/assets/verse-bg.jpg";
-import logo from "@/assets/bible-logo.asset.json";
+const logo = { url: "/logo.png" };
 
 export const Route = createFileRoute("/")({
   head: () => ({
