@@ -142,7 +142,10 @@ function HomePage() {
                 <button
                   aria-label="Save verse"
                   onClick={() => {
-                    if (!user) return toast.error("Sign in to save verses");
+                    if (!user) {
+                      toast.error("Sign in to save verses");
+                      return;
+                    }
                     addNote.mutate(
                       { reference, body: verseText },
                       { onSuccess: () => toast.success("Saved to your notes") },
