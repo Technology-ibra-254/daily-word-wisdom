@@ -60,8 +60,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", "Lora", ui-serif, Georgia, serif;
   --font-serif: "Lora", ui-serif, Georgia, serif;
+  --font-scripture: "Newsreader", "Lora", ui-serif, Georgia, serif;
+  --font-stat: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+  --font-kids: "Baloo 2", "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --shadow-card: 0 6px 20px -12px oklch(0.3 0.09 275 / 0.35);
   --shadow-float: 0 14px 34px -14px oklch(0.35 0.15 275 / 0.45);
 }
