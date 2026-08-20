@@ -70,12 +70,44 @@ const HIGHLIGHT_TONES: Record<Highlight["color"], string> = {
   pink: "bg-kids-soft",
 };
 
+function TranslationOptions({ exclude }: { exclude?: string }) {
+  return (
+    <SelectContent className="max-h-80">
+      {TRANSLATION_GROUPS.map((g) => (
+        <SelectGroup key={g.label}>
+          <SelectLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {g.label}
+          </SelectLabel>
+          {g.items
+            .filter((t) => t.id !== exclude)
+            .map((t) => (
+              <SelectItem key={t.id} value={t.id} className="text-xs">
+                <span className="font-semibold">{t.name}</span>
+                <span className="ml-2 text-[10px] text-muted-foreground">{t.full}</span>
+              </SelectItem>
+            ))}
+        </SelectGroup>
+      ))}
+      <SelectGroup>
+        <SelectLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          Coming soon
+        </SelectLabel>
+        {PENDING_TRANSLATIONS.map((t) => (
+          <div key={t.name} className="px-2 py-1.5 text-[11px] text-muted-foreground">
+            {t.name} · {t.full}
+          </div>
+        ))}
+      </SelectGroup>
+    </SelectContent>
+  );
+}
+
 function BiblePage() {
   const [tab, setTab] = useState<Tab>("Read");
   const [book, setBook] = useState("John");
   const [chapter, setChapter] = useState(1);
-  const [translation, setTranslation] = useState("kjv");
-  const [compareWith, setCompareWith] = useState("web");
+  const [translation, setTranslation] = useState("NIV");
+  const [compareWith, setCompareWith] = useState("KJV");
   const [selected, setSelected] = useState<{ verse: number; text: string } | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [query, setQuery] = useState("");
