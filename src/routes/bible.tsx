@@ -14,12 +14,20 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { MobileShell, PageHeader } from "@/components/app/MobileShell";
 import { PillTabs } from "@/components/app/PillTabs";
-import { BOOKS, TRANSLATIONS, passageQuery } from "@/lib/bible";
+import {
+  BOOKS,
+  TRANSLATIONS,
+  TRANSLATION_GROUPS,
+  PENDING_TRANSLATIONS,
+  passageQuery,
+} from "@/lib/bible";
 import { useLocalState, type Highlight, type Note } from "@/lib/local-store";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
