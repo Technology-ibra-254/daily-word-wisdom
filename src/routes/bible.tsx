@@ -14,12 +14,20 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { MobileShell, PageHeader } from "@/components/app/MobileShell";
 import { PillTabs } from "@/components/app/PillTabs";
-import { BOOKS, TRANSLATIONS, passageQuery } from "@/lib/bible";
+import {
+  BOOKS,
+  TRANSLATIONS,
+  TRANSLATION_GROUPS,
+  PENDING_TRANSLATIONS,
+  passageQuery,
+} from "@/lib/bible";
 import { useLocalState, type Highlight, type Note } from "@/lib/local-store";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -62,12 +70,44 @@ const HIGHLIGHT_TONES: Record<Highlight["color"], string> = {
   pink: "bg-kids-soft",
 };
 
+function TranslationOptions({ exclude }: { exclude?: string }) {
+  return (
+    <SelectContent className="max-h-80">
+      {TRANSLATION_GROUPS.map((g) => (
+        <SelectGroup key={g.label}>
+          <SelectLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {g.label}
+          </SelectLabel>
+          {g.items
+            .filter((t) => t.id !== exclude)
+            .map((t) => (
+              <SelectItem key={t.id} value={t.id} className="text-xs">
+                <span className="font-semibold">{t.name}</span>
+                <span className="ml-2 text-[10px] text-muted-foreground">{t.full}</span>
+              </SelectItem>
+            ))}
+        </SelectGroup>
+      ))}
+      <SelectGroup>
+        <SelectLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          Coming soon
+        </SelectLabel>
+        {PENDING_TRANSLATIONS.map((t) => (
+          <div key={t.name} className="px-2 py-1.5 text-[11px] text-muted-foreground">
+            {t.name} · {t.full}
+          </div>
+        ))}
+      </SelectGroup>
+    </SelectContent>
+  );
+}
+
 function BiblePage() {
   const [tab, setTab] = useState<Tab>("Read");
   const [book, setBook] = useState("John");
   const [chapter, setChapter] = useState(1);
-  const [translation, setTranslation] = useState("kjv");
-  const [compareWith, setCompareWith] = useState("web");
+  const [translation, setTranslation] = useState("NIV");
+  const [compareWith, setCompareWith] = useState("KJV");
   const [selected, setSelected] = useState<{ verse: number; text: string } | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [query, setQuery] = useState("");
@@ -136,16 +176,10 @@ function BiblePage() {
             </SelectContent>
           </Select>
           <Select value={translation} onValueChange={setTranslation}>
-            <SelectTrigger className="h-9 w-24 rounded-full text-xs">
+            <SelectTrigger className="h-9 w-28 rounded-full text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {TRANSLATIONS.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
+            <TranslationOptions />
           </Select>
         </div>
       )}
@@ -200,16 +234,10 @@ function BiblePage() {
           <div className="mb-3 flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Compare with</span>
             <Select value={compareWith} onValueChange={setCompareWith}>
-              <SelectTrigger className="h-8 w-28 rounded-full text-xs">
+              <SelectTrigger className="h-8 w-32 rounded-full text-xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {TRANSLATIONS.filter((t) => t.id !== translation).map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+              <TranslationOptions exclude={translation} />
             </Select>
           </div>
           <div className="space-y-3">
