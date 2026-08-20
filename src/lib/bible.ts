@@ -180,7 +180,7 @@ export function parseReference(input: string) {
   const raw = input.trim().replace(/\s+/g, " ");
   const m = raw.match(/^([1-3]?\s?[A-Za-z. ]+?)\s*(\d+)?(?::(\d+)(?:\s*-\s*(\d+))?)?$/);
   if (!m) return null;
-  const key = m[1].toLowerCase().replace(/\./g, "").trim();
+  const key = (m[1] ?? "").toLowerCase().replace(/\./g, "").trim();
   const name =
     ALIASES[key] ??
     BOOKS.find((b) => b.name.toLowerCase() === key)?.name ??
