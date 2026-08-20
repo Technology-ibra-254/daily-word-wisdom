@@ -200,16 +200,10 @@ function BiblePage() {
           <div className="mb-3 flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Compare with</span>
             <Select value={compareWith} onValueChange={setCompareWith}>
-              <SelectTrigger className="h-8 w-28 rounded-full text-xs">
+              <SelectTrigger className="h-8 w-32 rounded-full text-xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {TRANSLATIONS.filter((t) => t.id !== translation).map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+              <TranslationOptions exclude={translation} />
             </Select>
           </div>
           <div className="space-y-3">
