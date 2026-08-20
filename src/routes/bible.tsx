@@ -136,16 +136,10 @@ function BiblePage() {
             </SelectContent>
           </Select>
           <Select value={translation} onValueChange={setTranslation}>
-            <SelectTrigger className="h-9 w-24 rounded-full text-xs">
+            <SelectTrigger className="h-9 w-28 rounded-full text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {TRANSLATIONS.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
+            <TranslationOptions />
           </Select>
         </div>
       )}
